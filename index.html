@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Quick Checkout</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --surface: #ffffff;
+      --background: #f8fafc;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 12px;
+      --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--background);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      padding: 16px;
+      min-height: 100vh;
+    }
+
+    .checkout-card {
+      background: var(--surface);
+      width: 100%;
+      max-width: 480px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px 20px;
+      border: 1px solid var(--border);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .header p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .section-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-top: 20px;
+      margin-bottom: 12px;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 12px 14px;
+      font-size: 0.95rem;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      background: #fff;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 10px;
+    }
+
+    /* Price Summary Box */
+    .summary-card {
+      background-color: #f1f5f9;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin: 18px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .summary-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .total-price {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+    }
+
+    /* Button */
+    .submit-btn {
+      width: 100%;
+      background: var(--primary);
+      color: #ffffff;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .submit-btn:active {
+      transform: scale(0.98);
+    }
+
+    .submit-btn:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+    }
+
+    /* Spinner */
+    .spinner {
+      display: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid #ffffff;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Status Notifications */
+    .alert {
+      display: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      margin-top: 14px;
+      text-align: center;
+    }
+
+    .alert-success {
+      background-color: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+
+    .alert-error {
+      background-color: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="checkout-card">
+    <div class="header">
+      <h1>Complete Your Order</h1>
+      <p>Fill out the details below to place your order</p>
+    </div>
+
+    <form id="orderForm">
+      <!-- Item Details -->
+      <div class="section-title">1. Product Selection</div>
+      
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="Product">Item</label>
+          <select id="Product" name="Product" required>
+            <option value="Wireless Earbuds" data-price="29.99">Wireless Earbuds ($29.99)</option>
+            <option value="Smart Fitness Band" data-price="49.99">Smart Fitness Band ($49.99)</option>
+            <option value="Leather Phone Case" data-price="19.99">Leather Phone Case ($19.99)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="Quantity">Qty</label>
+          <input type="number" id="Quantity" name="Quantity" min="1" max="10" value="1" required />
+        </div>
+      </div>
+
+      <!-- Hidden field to send calculated price -->
+      <input type="hidden" id="TotalAmount" name="TotalAmount" value="29.99" />
+
+      <!-- Customer Details -->
+      <div class="section-title">2. Shipping Info</div>
+
+      <div class="form-group">
+        <label for="FullName">Full Name</label>
+        <input type="text" id="FullName" name="FullName" placeholder="e.g. John Doe" required />
+      </div>
+
+      <div class="form-group">
+        <label for="Phone">Phone Number</label>
+        <input type="tel" id="Phone" name="Phone" placeholder="e.g. +1 555-019-2834" required />
+      </div>
+
+      <div class="form-group">
+        <label for="Email">Email Address</label>
+        <input type="email" id="Email" name="Email" placeholder="e.g. john@example.com" required />
+      </div>
+
+      <div class="form-group">
+        <label for="Address">Delivery Address</label>
+        <textarea id="Address" name="Address" rows="2" placeholder="Street, Apartment, City, Postal Code" required></textarea>
+      </div>
+
+      <!-- Payment -->
+      <div class="section-title">3. Payment</div>
+      <div class="form-group">
+        <label for="PaymentMethod">Payment Option</label>
+        <select id="PaymentMethod" name="PaymentMethod" required>
+          <option value="Cash on Delivery">Cash on Delivery (COD)</option>
+          <option value="UPI / Online Transfer">UPI / Online Transfer</option>
+        </select>
+      </div>
+
+      <!-- Summary -->
+      <div class="summary-card">
+        <span class="summary-title">Total Due</span>
+        <span class="total-price" id="displayTotal">$29.99</span>
+      </div>
+
+      <!-- Submit -->
+      <button type="submit" class="submit-btn" id="submitBtn">
+        <span class="spinner" id="spinner"></span>
+        <span id="btnText">Place Order</span>
+      </button>
+
+      <!-- Feedback Alerts -->
+      <div class="alert alert-success" id="successAlert">
+        🎉 Thank you! Your order has been placed successfully.
+      </div>
+      <div class="alert alert-error" id="errorAlert">
+        ⚠️ Failed to submit order. Please try again.
+      </div>
+    </form>
+  </div>
+
+  <script>
+    // --- REPLACE THIS WITH YOUR GOOGLE APPS SCRIPT WEB APP URL ---
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxtKZFGp3pQMZaFVD2Wnq-T6EegzoO7XLLjnHJRkST4L5-z3ee7eTb0AsrYx8dR_RgE2A/exec';
+
+    const productSelect = document.getElementById('Product');
+    const quantityInput = document.getElementById('Quantity');
+    const displayTotal = document.getElementById('displayTotal');
+    const totalAmountInput = document.getElementById('TotalAmount');
+
+    // Dynamic Price Calculation
+    function calculateTotal() {
+      const selectedOption = productSelect.options[productSelect.selectedIndex];
+      const unitPrice = parseFloat(selectedOption.getAttribute('data-price')) || 0;
+      const quantity = parseInt(quantityInput.value, 10) || 1;
+      const total = (unitPrice * quantity).toFixed(2);
+
+      displayTotal.textContent = `$${total}`;
+      totalAmountInput.value = `$${total}`;
+    }
+
+    productSelect.addEventListener('change', calculateTotal);
+    quantityInput.addEventListener('input', calculateTotal);
+
+    // Form Submission Handling
+    const form = document.getElementById('orderForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const spinner = document.getElementById('spinner');
+    const successAlert = document.getElementById('successAlert');
+    const errorAlert = document.getElementById('errorAlert');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      // UI state: Loading
+      submitBtn.disabled = true;
+      spinner.style.display = 'inline-block';
+      btnText.textContent = 'Processing...';
+      successAlert.style.display = 'none';
+      errorAlert.style.display = 'none';
+
+      const formData = new FormData(form);
+
+      fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.result === 'success') {
+          successAlert.style.display = 'block';
+          form.reset();
+          calculateTotal(); // Reset prices back to default
+        } else {
+          errorAlert.style.display = 'block';
+        }
+      })
+      .catch(error => {
+        console.error('Error submitting form:', error);
+        errorAlert.style.display = 'block';
+      })
+      .finally(() => {
+        // UI state: Re-enable
+        submitBtn.disabled = false;
+        spinner.style.display = 'none';
+        btnText.textContent = 'Place Order';
+      });
+    });
+  </script>
+</body>
+</html>
